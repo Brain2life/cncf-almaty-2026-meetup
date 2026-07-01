@@ -1,6 +1,6 @@
 # Demo 1: Hardening a Kubernetes Cluster with Kubescape CLI
 
-This demo follows the [official Kubescape guide](https://kubescape.io/docs/guides/kubescape-cli/) for hardening Kubernetes workloads using the Kubescape command-line tool. This demo shows the basic example of Kubescape scanning, analysis of the derived report and applying remediation patches. 
+This demo follows the [official Kubescape guide](https://kubescape.io/docs/guides/kubescape-cli/) for hardening Kubernetes workloads using the Kubescape command-line tool. Demo shows the basic example of Kubescape scanning, analysis of the derived report and applying remediation patches.
 
 ## Prerequisites
 
