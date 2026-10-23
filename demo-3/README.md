@@ -97,7 +97,7 @@ kubectl create clusterrolebinding headlamp-admin --serviceaccount=kube-system:he
 ```
 3. Create the token for Kubernetes `v1.24+`:
 ```bash
-kubectl create token headlamp-admin -n kube-system
+kubectl create token headlamp-admin -n kube-system | tr -d '\n' | xclip -selection clipboard
 ```
 4. Copy the token and log in:
 
@@ -105,6 +105,30 @@ kubectl create token headlamp-admin -n kube-system
 
 For more information, see [Create a Service Account token](https://headlamp.dev/docs/latest/installation/#create-a-service-account-token).
 
+
+## Deploy a Vulnerable Workload
+
+To have real findings to show in the dashboard, deploy [OWASP WebGoat](https://owasp.org/www-project-webgoat/), a deliberately insecure Java (Spring Boot) application built for security training. An older tag (`v2023.4`) is pinned on purpose, so the image ships outdated dependencies with known CVEs.
+
+> [!WARNING]
+> WebGoat is intentionally vulnerable. Run it only in this local kind cluster. The manifest creates no Service or Ingress, so the app is not exposed. Do not expose it.
+
+```bash
+kubectl apply -f webgoat/deployment.yaml
+```
+
+Wait for the pod to be ready (the image is ~400 MB, first pull takes a while):
+
+```bash
+kubectl get pods -n webgoat -w
+```
+
+## Static Scan
+
+To statically scan the cluster:
+```bash
+kubescape scan
+```
 
 ## Trigger Scans
 
@@ -128,6 +152,14 @@ Once the pods reach `Completed`, **refresh the browser** — the Kubescape plugi
 
 ![](../img/headlamp_plugin_vulns.png)
 
+In Headlamp, open **Kubescape --> Vulnerabilities** and filter by the `webgoat` namespace. The `webgoat` workload lists its CVEs with severity, affected package and fixed version. Since `continuousScan` is enabled, the plugin can also show which vulnerable components are actually loaded at runtime, not just present in the image.
+
+To check the same image from the CLI:
+
+```bash
+kubescape scan image webgoat/webgoat:v2023.4
+```
+
 ## Cleanup
 
 ```bash
@@ -139,3 +171,4 @@ kind delete cluster --name kubescape-headlamp-demo
 ](https://kubescape.io/blog/2025/04/30/kubescape-headlamp/)
 - [Headlamp In-cluster Installation](https://headlamp.dev/docs/latest/installation/in-cluster/)
 - [Kubescape Headlamp Plugin: github.com/kubescape/headlamp-plugin/](https://github.com/kubescape/headlamp-plugin/)
+- [OWASP WebGoat: github.com/WebGoat/WebGoat](https://github.com/WebGoat/WebGoat)
